@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-flask-app
+  labels:
+    app: hello-flask
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: hello-flask
+  template:
+    metadata:
+      labels:
+        app: hello-flask
+    spec:
+      containers:
+      - name: flask-app
+        image: hello-flask:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-flask-service
+spec:
+  selector:
+    app: hello-flask
+  ports:
+  - port: 80
+    targetPort: 8080
+  type: LoadBalancer  # или NodePort для локальных кластеров
